@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Grading and Feedback with AI</title>
+<style>
+/* FOUNDATION */
+*, *::before, *::after { box-sizing: border-box; }
+html { font-size: 62.5%; height:100%; max-width:100vw; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+body { margin:0; height:100%; background:#ffffff; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size:1.8rem; line-height:1.9; color:#111; overflow:hidden; }
+.rise-shell { height:100%; display:flex; flex-direction:column; }
+.rise-shell__header { padding:1.8rem 3.0rem; background:#ffffff; border-bottom:1px solid #ececec; display:flex; align-items:center; justify-content:space-between; }
+.rise-shell__title { font-size:2.4rem; font-weight:600; }
+.rise-shell__meta { font-size:1.5rem; color:#666; }
+.rise-shell__body { flex:1; overflow-y:auto; padding:6.0rem 0; }
+.rise-page { width:100%; max-width:100rem; margin:0 auto; padding:0 3.2rem; }
+:root { --space-xs:1.6rem; --space-sm:2.4rem; --space-md:3.6rem; --space-lg:6.0rem; --space-xl:8.4rem; --space-xxl:11.2rem; }
+.rise-block { margin-block:var(--space-xl); padding:var(--space-lg); background:#ffffff; border-radius:0.8rem; }
+.rise-block[style*="background"] { box-shadow:0 0.4rem 1.6rem rgba(0,0,0,0.04); }
+.rise-block h2 { font-size:2.6rem; margin-bottom:var(--space-sm); line-height:1.3; }
+.rise-block h3 { font-size:2rem; margin-top:var(--space-sm); margin-bottom:1.2rem; }
+.rise-block p { margin-bottom:var(--space-sm); }
+
+/* COVER PAGE */
+.cover-screen {
+  position: fixed;
+  inset: 0;
+  background: #ffffff;
+  z-index: 5000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.cover-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.cover-title {
+  font-size: 3.2rem;
+  font-weight: 700;
+  margin-bottom: 3rem;
+}
+
+.cover-btn {
+  padding: 1.2rem 2.4rem;
+  font-size: 1.8rem;
+  border-radius: 0.6rem;
+  border: none;
+  background: #007CFF;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.cover-btn:hover {
+  background: #0066d1;
+}
+
+/* IMAGE + TEXT SPLIT BLOCK */
+.split-block {
+  display: flex;
+  gap: 3.2rem;
+  align-items: center;
+  margin-top: 2.4rem;
+}
+
+.split-block img {
+  width: 40%;
+  max-width: 32rem;
+  border-radius: 0.8rem;
+  object-fit: cover;
+}
+
+.split-block .split-text {
+  flex: 1;
+  font-size: 1.8rem;
+  line-height: 1.7;
+}
+
+@media (max-width: 800px) {
+  .split-block {
+    flex-direction: column;
+    text-align: center;
+  }
+  .split-block img {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/* LABELED GRAPHIC */
+.labeled-graphic {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  margin: 3rem auto;
+}
+
+.labeled-graphic img {
+  width: 100%;
+  height: auto;
+  border-radius: 0.8rem;
+  display: block;
+}
+
+.hotspot {
+  position: absolute;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 50%;
+  background: #007CFF;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.6rem;
+  box-shadow: 0 0 8px rgba(0,0,0,0.15);
+  transition: transform .15s ease;
+}
+
+.hotspot:hover {
+  transform: scale(1.15);
+}
+
+.hotspot-label {
+  position: absolute;
+  background: #fff;
+  border-radius: 0.8rem;
+  padding: 1.6rem;
+  width: 26rem;
+  max-width: 70vw;
+  box-shadow: 0 0 12px rgba(0,0,0,0.15);
+  display: none;
+  z-index: 10;
+  font-size: 1.6rem;
+  line-height: 1.6;
+}
+
+.hotspot-label.active {
+  display: block;
+}
+
+.hotspot-label h4 {
+  margin-top: 0;
+  margin-bottom: 0.6rem;
+  font-size: 1.8rem;
+}
+
+
+/* CALLOUT */
+.callout { border-left:0.6rem solid #007CFF; padding:1.6rem 2rem; background:#f4f9ff; border-radius:0.4rem; margin-bottom:var(--space-sm); }
+
+/* CALLOUT 2 — Large Text With Top Line */
+.callout2 {
+  text-align: center;
+  font-size: 2.2rem;         /* Larger, elegant text */
+  line-height: 1.6;
+  color: #1a1a1a;
+  max-width: 70rem;
+  margin: 4rem auto;
+  padding: 2rem 1rem;
+  position: relative;
+}
+
+.callout2::before {
+  content: "";
+  width: 6rem;
+  height: 0.3rem;
+  background: #006644;       /* Adjust color as desired */
+  border-radius: 1rem;
+  display: block;
+  margin: 0 auto 2rem auto;
+}
+
+/* FLASHCARDS */
+.flashcards { display:grid; grid-template-columns: repeat(auto-fit, minmax(28rem, 1fr)); gap:var(--space-sm); }
+.flashcard { position:relative; min-height:16rem; perspective:1000px; cursor:pointer; border-radius:0.8rem; background:#f5f5f5; display:flex; align-items:center; justify-content:center; text-align:center; transition:transform .3s; font-size:1.8rem; font-weight:500; padding:1.6rem; }
+.flashcard .back { display:none; }
+.flashcard.show .front { display:none; }
+.flashcard.show .back { display:flex; }
+
+/* ACCORDIONS */
+.accordion { border:1px solid #ddd; border-radius:0.8rem; overflow:hidden; }
+.accordion-item + .accordion-item { border-top:1px solid #ddd; }
+.accordion-header { background:#f7f7f7; padding:1.6rem; cursor:pointer; font-size:1.8rem; }
+.accordion-content { display:none; padding:1.6rem; background:#ffffff; }
+.accordion-item.open .accordion-content { display:block; }
+
+/* NUMBER CIRCLE LIST */
+.circle-list li { display:flex; align-items:center; margin-bottom:1.2rem; }
+.circle-num { width:3.2rem; height:3.2rem; border-radius:50%; background:#007CFF; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:600; margin-right:1rem; }
+
+/* IMAGE CAROUSEL */
+.carousel {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  border-radius: 0.8rem;
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.4s ease;
+}
+
+.carousel-slide {
+  min-width: 100%;
+  flex-shrink: 0;
+}
+
+.carousel-slide img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 0.8rem;
+}
+
+/* CARD SEQUENCE / TIMELINE */
+.card-sequence {
+  position: relative;
+  margin: 4rem auto;
+  width: 100%;
+  max-width: 80rem;
+}
+
+.card-sequence::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: #dcdcdc;
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+.sequence-card {
+  position: relative;
+  background: #fff;
+  border-radius: 0.8rem;
+  padding: 2.4rem 3rem;
+  margin: 4rem 0;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+  border-left: 0.4rem solid #0b6b3a;
+  z-index: 2;
+}
+
+.sequence-card h4 {
+  margin: 0 0 0.8rem;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.sequence-card .sequence-date {
+  color: #0b6b3a;
+  font-weight: 700;
+  font-size: 1.6rem;
+  margin-bottom: 0.6rem;
+}
+
+@media (max-width: 700px) {
+  .card-sequence::before {
+    left: 2rem;
+  }
+
+  .sequence-card {
+    margin-left: 3rem;
+  }
+}
+
+/* CAROUSEL BUTTONS */
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.25);
+  color: #fff;
+  font-size: 2rem;
+  cursor: pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition: background 0.2s;
+}
+
+.carousel-btn:hover {
+  background: rgba(0,0,0,0.45);
+}
+
+.carousel-btn.prev { left: 1rem; }
+.carousel-btn.next { right: 1rem; }
+
+/* IMAGE GALLERY */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+  gap: 1.6rem;
+  margin-top: 2rem;
+}
+
+.gallery-item {
+  overflow: hidden;
+  border-radius: 0.8rem;
+  position: relative;
+  cursor: pointer;
+  background:#f5f5f5;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .3s ease;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.05);
+}
+
+
+/* TABS */
+.rise-tabs { display:flex; flex-wrap:wrap; gap:1.2rem; margin-top:1.6rem; }
+.tab-btn { padding:0.8rem 1.6rem; border-radius:0.7rem; border:1px solid #d0d0d0; background:#fff; cursor:pointer; font-size:1.6rem; }
+.tab-btn.active { background:#eaf4ff; border-color:#7dbaff; }
+.tab-content { display:none; margin-top:1.6rem; }
+.tab-content.active { display:block; }
+</style>
+</head>
+<body>
+<svg style="
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 60%;
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
+" viewbox="0 0 800 600">
+<defs>
+<pattern height="20" id="dots1" patternunits="userSpaceOnUse" width="20" x="0" y="0">
+<circle cx="3" cy="3" fill="#007CFF" r="3"></circle>
+</pattern>
+</defs>
+<rect fill="url(#dots1)" height="600" width="800"></rect>
+</svg>
+<div class="cover-screen" id="cover">
+<div class="cover-title">Grading and Feedback with AI</div>
+<button class="cover-btn" id="coverBegin">Begin</button>
+</div>
+<div class="rise-shell" style="; position: relative; z-index: 1;">
+<header class="rise-shell__header">
+<div class="rise-shell__title">Grading and Feedback with AI</div>
+<div class="rise-shell__meta">Sections 5–6</div>
+</header>
+<main class="rise-shell__body">
+<div class="rise-page">
+<section class="rise-block" style="background:#ffffff;">
+<h2>Lesson Outline</h2>
+<div class="callout">This presentation preserves the full text for Sections 5 and 6 and distributes it across multiple high-visibility interaction blocks.</div>
+<ul class="circle-list" style="padding-left:0; list-style:none; margin-top:2rem;">
+<li><div class="circle-num">1</div><span>Designing Effective Prompts for Grading</span></li>
+<li><div class="circle-num">2</div><span>Strong Grading Prompts Usually Include</span></li>
+<li><div class="circle-num">3</div><span>Weak Prompt / Stronger Prompt</span></li>
+<li><div class="circle-num">4</div><span>Prompt Design by Task</span></li>
+<li><div class="circle-num">5</div><span>What Must Remain Human</span></li>
+<li><div class="circle-num">6</div><span>Areas Requiring Particular Caution</span></li>
+</ul>
+</section>
+<section class="rise-block" style="background:#ffffff;">
+<h2>5. Designing Effective Prompts for Grading</h2>
+<p>Prompt quality matters because grading tasks are rarely generic. Weak prompts invite vague academic language, generic praise, or shallow summaries of student work. Strong prompts define the evaluative task narrowly enough that the output serves a specific grading purpose.</p>
+<p>Useful grading prompts usually supply context, criteria, and a bounded task. They tell the system what kind of intellectual work matters, what role it is playing, and what the output should look like.</p>
+<div class="callout2">The more bounded the task, the more usable the output.</div>
+</section>
+<section class="rise-block" style="background:#ffffff;">
+<h2>Strong Grading Prompts Usually Include</h2>
+<div class="flashcards">
+<div class="flashcard">
+<div class="front">the assignment context</div>
+<div class="back">the assignment context</div>
+</div>
+<div class="flashcard">
+<div class="front">the rubric or evaluative criteria</div>
+<div class="back">the rubric or evaluative criteria</div>
+</div>
+<div class="flashcard">
+<div class="front">the kind of thinking expected</div>
+<div class="back">the kind of thinking expected</div>
+</div>
+<div class="flashcard">
+<div class="front">the exact task to perform</div>
+<div class="back">the exact task to perform</div>
+</div>
+<div class="flashcard">
+<div class="front">the desired output format</div>
+<div class="back">the desired output format</div>
+</div>
+</div>
+</section>
+<section class="rise-block" style="background:#ffffff;">
+<h2>Prompt Contrast</h2>
+<div class="rise-tabs">
+<button class="tab-btn active" data-group="prompt-contrast" data-target="weak-prompt">Weak prompt</button>
+<button class="tab-btn" data-group="prompt-contrast" data-target="stronger-prompt">Stronger prompt</button>
+</div>
+<div class="tab-content active callout" data-group="prompt-contrast" id="weak-prompt">
+
+<p>“Give feedback on this paper.”</p>
+</div>
+<div class="tab-content callout" data-group="prompt-contrast" id="stronger-prompt">
+
+<p>“Using this rubric and these instructor notes, draft feedback that explains the paper’s main strength, main weakness, and one specific revision priority. Focus on argument quality rather than grammar.”</p>
+</div>
+</section>
+<section class="rise-block" style="background:#ffffff;">
+<h2>Prompt Design by Task</h2>
+<div class="accordion">
+<div class="accordion-item open">
+<div class="accordion-header">For calibration</div>
+<div class="accordion-content">
+<ul>
+<li>provide the rubric</li>
+<li>provide one or more anchor examples</li>
+<li>ask whether the current evaluation is consistent with those standards</li>
+</ul>
+</div>
+</div>
+<div class="accordion-item">
+<div class="accordion-header">For thinking-level diagnosis</div>
+<div class="accordion-content">
+<ul>
+<li>define the mode of thinking expected</li>
+<li>ask what mode is actually present</li>
+<li>require evidence for the classification</li>
+</ul>
+</div>
+</div>
+<div class="accordion-item">
+<div class="accordion-header">For feedback drafting</div>
+<div class="accordion-content">
+<ul>
+<li>provide brief instructor notes</li>
+<li>specify the comment structure</li>
+<li>state what the feedback should prioritize</li>
+</ul>
+</div>
+</div>
+<div class="accordion-item">
+<div class="accordion-header">For post-grading pattern review</div>
+<div class="accordion-content">
+<ul>
+<li>provide anonymized excerpts or grading notes</li>
+<li>ask for recurring patterns rather than individual judgments</li>
+<li>require a concise instructional summary</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section class="rise-block" style="background:#ffffff;">
+<h2>6. What Must Remain Human</h2>
+<p>Faculty remain responsible for the meaning of quality in the discipline and for the consequences attached to a grade. AI can support parts of the process, but it does not remove responsibility for judgment, interpretation, or accountability.</p>
+<p>This matters most where evaluation depends on nuance, context, or disciplinary judgment that cannot be reduced to a pattern match.</p>
+<div class="callout2">The final evaluation remains the instructor’s responsibility, even when parts of the workflow are AI-assisted.</div>
+</section>
+<section class="rise-block" style="background:#ffffff;">
+<h2>Faculty Still Decide</h2>
+<div class="rise-tabs">
+<button class="tab-btn active" data-group="human-judgment" data-target="human-decisions-1">Judgment 1–2</button>
+<button class="tab-btn" data-group="human-judgment" data-target="human-decisions-2">Judgment 3–4</button>
+</div>
+<div class="tab-content active callout" data-group="human-judgment" id="human-decisions-1">
+
+<ul>
+<li>what counts as strong work in the field</li>
+<li>which weaknesses are central rather than incidental</li>
+</ul>
+</div>
+<div class="tab-content callout" data-group="human-judgment" id="human-decisions-2">
+
+<ul>
+<li>how to weigh originality, ambiguity, and uneven performance</li>
+<li>how to interpret context not fully visible in the submitted text</li>
+</ul>
+</div>
+</section>
+<section class="rise-block" style="background:#ffffff;">
+<h2>Areas Requiring Particular Caution</h2>
+<div class="flashcards">
+<div class="flashcard">
+<div class="front">borderline cases</div>
+<div class="back">borderline cases</div>
+</div>
+<div class="flashcard">
+<div class="front">originality and voice</div>
+<div class="back">originality and voice</div>
+</div>
+<div class="flashcard">
+<div class="front">academic integrity concerns</div>
+<div class="back">academic integrity concerns</div>
+</div>
+<div class="flashcard">
+<div class="front">discipline-specific nuance</div>
+<div class="back">discipline-specific nuance</div>
+</div>
+<div class="flashcard">
+<div class="front">unusual personal or contextual circumstances</div>
+<div class="back">unusual personal or contextual circumstances</div>
+</div>
+</div>
+</section>
+<section class="rise-block" style="background:#ffffff;">
+<h2>Closing Emphasis</h2>
+<div class="accordion">
+<div class="accordion-item open">
+<div class="accordion-header">Core responsibility</div>
+<div class="accordion-content">
+<p>The final evaluation remains the instructor’s responsibility, even when parts of the workflow are AI-assisted.</p>
+</div>
+</div>
+<div class="accordion-item">
+<div class="accordion-header">Why this matters most</div>
+<div class="accordion-content">
+<p>This matters most where evaluation depends on nuance, context, or disciplinary judgment that cannot be reduced to a pattern match.</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+</div>
+<script>
+document.querySelectorAll('.flashcard').forEach(card => {
+  card.addEventListener('click', () => {
+    card.classList.toggle('show');
+  });
+});
+
+document.querySelectorAll('.accordion-header').forEach(header => {
+  header.addEventListener('click', () => {
+    header.parentElement.classList.toggle('open');
+  });
+});
+
+// IMAGE CAROUSEL
+document.querySelectorAll('[data-carousel]').forEach(carousel => {
+  const track = carousel.querySelector('.carousel-track');
+  const slides = Array.from(track.children);
+  const prevBtn = carousel.querySelector('[data-carousel-prev]');
+  const nextBtn = carousel.querySelector('[data-carousel-next]');
+  let index = 0;
+
+  function updateCarousel() {
+    track.style.transform = `translateX(-${index * 100}%)`;
+  }
+
+  nextBtn.addEventListener('click', () => {
+    index = (index + 1) % slides.length;
+    updateCarousel();
+  });
+
+  prevBtn.addEventListener('click', () => {
+    index = (index - 1 + slides.length) % slides.length;
+    updateCarousel();
+  });
+});
+
+// LABELED GRAPHIC
+document.querySelectorAll('[data-labeled-graphic]').forEach(graphic => {
+  const hotspots = graphic.querySelectorAll('.hotspot');
+  hotspots.forEach(hotspot => {
+    hotspot.addEventListener('click', () => {
+      const id = hotspot.dataset.hotspot;
+      const label = graphic.querySelector('[data-label="' + id + '"]');
+      
+      // Toggle active state
+      const alreadyActive = label.classList.contains('active');
+      graphic.querySelectorAll('.hotspot-label').forEach(l => l.classList.remove('active'));
+      
+      if (!alreadyActive) {
+        label.classList.add('active');
+      }
+    });
+  });
+});
+
+
+// COVER PAGE LOGIC
+const cover = document.getElementById('cover');
+const beginBtn = document.getElementById('coverBegin');
+
+beginBtn.addEventListener('click', () => {
+  cover.classList.add('hidden');
+});
+
+
+function changeTab(event) {
+  const btn = event.currentTarget;
+  const group = btn.dataset.group;
+  const targetId = btn.dataset.target;
+
+  if (!group || !targetId) return;
+
+  const block = btn.closest('.rise-block') || document;
+
+  const allButtons = block.querySelectorAll('.tab-btn[data-group="' + group + '"]');
+  const allContents = block.querySelectorAll('.tab-content[data-group="' + group + '"]');
+
+  allButtons.forEach(b => b.classList.remove('active'));
+  allContents.forEach(c => c.classList.remove('active'));
+
+  btn.classList.add('active');
+  const target = block.querySelector('#' + targetId);
+  if (target) {
+    target.classList.add('active');
+  }
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', changeTab);
+});
+</script>
+</body>
+</html>
