@@ -360,10 +360,7 @@ body { margin:0; height:100%; background:#ffffff; font-family: system-ui, -apple
 </defs>
 <rect fill="url(#dots1)" height="600" width="800"></rect>
 </svg>
-<div class="cover-screen" id="cover">
-<div class="cover-title">Grading and Feedback with AI</div>
-<button class="cover-btn" id="coverBegin">Begin</button>
-</div>
+
 <div class="rise-shell" style="; position: relative; z-index: 1;">
 <header class="rise-shell__header">
 <div class="rise-shell__title">Grading and Feedback with AI</div>
@@ -371,18 +368,7 @@ body { margin:0; height:100%; background:#ffffff; font-family: system-ui, -apple
 </header>
 <main class="rise-shell__body">
 <div class="rise-page">
-<section class="rise-block" style="background:#ffffff;">
-<h2>Lesson Outline</h2>
-<div class="callout">This presentation preserves the full text for Sections 5 and 6 and distributes it across multiple high-visibility interaction blocks.</div>
-<ul class="circle-list" style="padding-left:0; list-style:none; margin-top:2rem;">
-<li><div class="circle-num">1</div><span>Designing Effective Prompts for Grading</span></li>
-<li><div class="circle-num">2</div><span>Strong Grading Prompts Usually Include</span></li>
-<li><div class="circle-num">3</div><span>Weak Prompt / Stronger Prompt</span></li>
-<li><div class="circle-num">4</div><span>Prompt Design by Task</span></li>
-<li><div class="circle-num">5</div><span>What Must Remain Human</span></li>
-<li><div class="circle-num">6</div><span>Areas Requiring Particular Caution</span></li>
-</ul>
-</section>
+
 <section class="rise-block" style="background:#ffffff;">
 <h2>5. Designing Effective Prompts for Grading</h2>
 <p>Prompt quality matters because grading tasks are rarely generic. Weak prompts invite vague academic language, generic praise, or shallow summaries of student work. Strong prompts define the evaluative task narrowly enough that the output serves a specific grading purpose.</p>
@@ -421,11 +407,9 @@ body { margin:0; height:100%; background:#ffffff; font-family: system-ui, -apple
 <button class="tab-btn" data-group="prompt-contrast" data-target="stronger-prompt">Stronger prompt</button>
 </div>
 <div class="tab-content active callout" data-group="prompt-contrast" id="weak-prompt">
-
 <p>“Give feedback on this paper.”</p>
 </div>
 <div class="tab-content callout" data-group="prompt-contrast" id="stronger-prompt">
-
 <p>“Using this rubric and these instructor notes, draft feedback that explains the paper’s main strength, main weakness, and one specific revision priority. Focus on argument quality rather than grammar.”</p>
 </div>
 </section>
@@ -487,14 +471,12 @@ body { margin:0; height:100%; background:#ffffff; font-family: system-ui, -apple
 <button class="tab-btn" data-group="human-judgment" data-target="human-decisions-2">Judgment 3–4</button>
 </div>
 <div class="tab-content active callout" data-group="human-judgment" id="human-decisions-1">
-
 <ul>
 <li>what counts as strong work in the field</li>
 <li>which weaknesses are central rather than incidental</li>
 </ul>
 </div>
 <div class="tab-content callout" data-group="human-judgment" id="human-decisions-2">
-
 <ul>
 <li>how to weigh originality, ambiguity, and uneven performance</li>
 <li>how to interpret context not fully visible in the submitted text</li>
@@ -603,13 +585,6 @@ document.querySelectorAll('[data-labeled-graphic]').forEach(graphic => {
 
 
 // COVER PAGE LOGIC
-const cover = document.getElementById('cover');
-const beginBtn = document.getElementById('coverBegin');
-
-beginBtn.addEventListener('click', () => {
-  cover.classList.add('hidden');
-});
-
 
 function changeTab(event) {
   const btn = event.currentTarget;
